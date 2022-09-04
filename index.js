@@ -19,24 +19,13 @@ app.get('/', (req, res) => {
 
 let UserSchema = new mongoose.Schema({
   name : String,
+  exercises : [{
   description : String,
   duration : Number,
-  date: Number
+  date: Number}]
 })
 
 let user = mongoose.model('user',UserSchema);
-// let kduy = new user({name : "kduy"})
-// kduy.save(function(err,data){
-//   if (err) throw err;
-//   console.log("save succesfull")
-// })
-
-// user.findOne({name : "kduy"},function (err,data){
-//   if (err) console.log(err);
-//   console.log(data.name);
-//   console.log(data.description);
-//   console.log("ok")
-// })
 
 app.post('/api/users',function (req,res){
   let person = new user({name : req.body.username});
@@ -56,8 +45,19 @@ app.get('/api/users',function (req,res){
     res.send(data);
   });
 })
-
-
+function get_date(s)
+{
+  if (s == "") return new Date();
+  return new Date(s);
+}
+app.post('/api/users/:_id/exercises',function (req,res){
+  let new_excercise = {
+    description : req.body.description,
+    duration : req.body.description,
+    date : get_date(req.body.date).getTime()
+  }
+  res.send(new_excercise);
+})
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)

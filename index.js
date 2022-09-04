@@ -40,7 +40,7 @@ app.post('/api/users',function (req,res){
   
 })
 app.get('/api/users',function (req,res){
-  let result = user.find().select('+name +_id').exec(function (err,data){
+  let result = user.find().select('-exercises').exec(function (err,data){
     if (err) throw err;
     res.send(data);
   });
@@ -56,7 +56,33 @@ app.post('/api/users/:_id/exercises',function (req,res){
     duration : req.body.description,
     date : get_date(req.body.date).getTime()
   }
-  res.send(new_excercise);
+  let id = mongoose.Types.ObjectId(req.params._id);
+  // console.log(typeof id);
+  // user.findById(id,function(err,data){
+  //   if (err) console.log("deo ok");
+  //   else console.log("ok")
+  //   data.exercises.push(new_excercise)
+
+  //   res.send("ok")
+  // })
+  // res.send("ok")
+  user.findById(id,function (err,data){
+    if (err) {
+      res.send(err);
+      console.log(err)
+      // return;
+    }
+    else console.log("ok")
+    // res.send("ok");
+    data.exercises.push(new_excercise)
+    data.save(function(err,data){
+      if (err) throw err;
+      console.log("save succesfull")
+    })
+    res.send("ok")
+  })
+  // res.send("ok")
+  // res.send(new_excercise);
 })
 
 const listener = app.listen(process.env.PORT || 3000, () => {

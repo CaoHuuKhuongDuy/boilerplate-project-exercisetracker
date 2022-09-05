@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 });
 
 let UserSchema = new mongoose.Schema({
-  name : String,
+  username : String,
   exercises : [{
   description : String,
   duration : Number,
@@ -65,7 +65,7 @@ app.post('/api/users/:_id/exercises',function (req,res){
     })
     let result = {
       _id : req.params._id,
-      username : data.name,
+      username : data.username,
       date : new Date(new_excercise.date).toDateString(),
       duration : new_excercise.duration,
       description : new_excercise.description

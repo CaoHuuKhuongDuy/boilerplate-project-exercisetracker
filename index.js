@@ -57,32 +57,21 @@ app.post('/api/users/:_id/exercises',function (req,res){
     date : get_date(req.body.date).getTime()
   }
   let id = mongoose.Types.ObjectId(req.params._id);
-  // console.log(typeof id);
-  // user.findById(id,function(err,data){
-  //   if (err) console.log("deo ok");
-  //   else console.log("ok")
-  //   data.exercises.push(new_excercise)
-
-  //   res.send("ok")
-  // })
-  // res.send("ok")
   user.findById(id,function (err,data){
-    if (err) {
-      res.send(err);
-      console.log(err)
-      // return;
-    }
-    else console.log("ok")
-    // res.send("ok");
+    if (err) throw err;
     data.exercises.push(new_excercise)
     data.save(function(err,data){
       if (err) throw err;
-      console.log("save succesfull")
     })
-    res.send("ok")
+    let result = {
+      _id : req.params._id,
+      username : data.name,
+      date : new Date(new_excercise.date).toDateString(),
+      duration : new_excercise.duration,
+      description : new_excercise.description
+    }
+    res.send(result)
   })
-  // res.send("ok")
-  // res.send(new_excercise);
 })
 
 const listener = app.listen(process.env.PORT || 3000, () => {

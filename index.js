@@ -3,8 +3,6 @@ const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
-const { query } = require('express')
-const oo = 
 require('dotenv').config()
 let My_Uri = "mongodb+srv://CaoHuuKhuongDuy:21nhatranG@cluster0.hrxneeb.mongodb.net/fcc-mongodb-and-mongoose?retryWrites=true&w=majority"
 
@@ -70,7 +68,7 @@ app.post('/api/users/:_id/exercises',function (req,res){
       
     })
     let result = {
-      _id : id,
+      _id : req.params._id,
       username : data.username,
       date : new Date(new_excercise.date).toDateString(),
       duration : new_excercise.duration,

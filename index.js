@@ -44,9 +44,12 @@ app.get('/api/users',function (req,res){
     res.send(data);
   });
 })
+function query(s){
+  return typeof s != "undefined"
+}
 function get_date(s)
 {
-  if (s == "") return new Date();
+  if (!query(s)) return new Date();
   return new Date(s);
 }
 function ObjectId(s)
@@ -82,11 +85,6 @@ app.post('/api/users/:_id/exercises',function (req,res){
 })
 
 app.get('/api/users/:_id/logs',function (req,res){
-  // res.send("hello");
-  // return;
-  function query(s){
-    return typeof s != "undefined"
-  }
   let from = query(req.query.from) ? new Date(req.query.from).getTime() : -1;
   let to = query(req.query.to) ? new Date(req.query.to).getTime() : -1;
   let limit = query(req.query.limit) ? Number(req.query.limit) : -1;

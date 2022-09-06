@@ -53,19 +53,22 @@ function ObjectId(s)
 {
   return mongoose.Types.ObjectId(s);
 }
+
+let cnt_add = cnt_save = 0
 app.post('/api/users/:_id/exercises',function (req,res){
   let new_excercise = {
     description : req.body.description,
     duration : Number(req.body.duration),
     date : get_date(req.body.date).getTime()
   }
+  cnt_add ++;
   let id = ObjectId(req.params._id);
   user.findById(id,function (err,data){
     if (err) throw err;
     data.exercises.push(new_excercise)
     data.save(function (err,exer){
       if (err) throw err;
-      
+      else cnt_save++;
     })
     let result = {
       _id : req.params._id,
@@ -79,6 +82,8 @@ app.post('/api/users/:_id/exercises',function (req,res){
 })
 
 app.get('/api/users/:_id/logs',function (req,res){
+  // res.send("hello");
+  // return;
   function query(s){
     return typeof s != "undefined"
   }
@@ -111,6 +116,10 @@ app.get('/api/users/:_id/logs',function (req,res){
         }
     res.send(result)
   })
+})
+
+app.get('/catch',function (req,res){
+  res.send([cnt_add,cnt_save])
 })
 
 const listener = app.listen(process.env.PORT || 3000, () => {

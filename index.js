@@ -80,14 +80,14 @@ app.post('/api/users/:_id/exercises',function (req,res){
   })
 })
 
-app.get('/api/users/:id/logs',function (req,res){
+app.get('/api/users/:_id/logs',function (req,res){
   function query(s){
     return typeof s != "undefined"
   }
   let from = query(req.query.from) ? new Date(req.query.from).getTime() : -1;
   let to = query(req.query.to) ? new Date(req.query.to).getTime() : -1;
   let limit = query(req.query.limit) ? Number(req.query.limit) : -1;
-  let id = ObjectId(req.params.id)
+  let id = ObjectId(req.params._id)
   function check (a){
     if (from != -1 && from > a.date) return false;
     if (to != -1 && to < a.date) return false;
@@ -97,7 +97,7 @@ app.get('/api/users/:id/logs',function (req,res){
   user.findById(id,function (err,data){
     if (err) throw err;
     let result = {
-      _id : req.params.id,
+      _id : req.params._id,
       username : data.username,
       count : 0,
       logs : []
@@ -107,7 +107,6 @@ app.get('/api/users/:id/logs',function (req,res){
         {
           result.count ++;
           let tmp = JSON.parse(JSON.stringify(data.exercises[i]));
-          console.log(tmp)
           tmp.date = get_date(tmp.date).toDateString()
           delete tmp._id;
           result.logs.push(tmp)

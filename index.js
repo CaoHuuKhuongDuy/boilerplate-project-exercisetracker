@@ -50,21 +50,26 @@ function get_date(s)
   if (s == "") return new Date();
   return new Date(s);
 }
+function ObjectId(s)
+{
+  return mongoose.Types.ObjectId(s);
+}
 app.post('/api/users/:_id/exercises',function (req,res){
   let new_excercise = {
     description : req.body.description,
-    duration : req.body.description,
+    duration : Number(req.body.duration),
     date : get_date(req.body.date).getTime()
   }
-  let id = mongoose.Types.ObjectId(req.params._id);
+  let id = ObjectId(req.params._id);
   user.findById(id,function (err,data){
     if (err) throw err;
     data.exercises.push(new_excercise)
-    data.save(function(err,data){
+    data.save(function(err,exer){
       if (err) throw err;
+      
     })
     let result = {
-      _id : req.params._id,
+      _id : id,
       username : data.username,
       date : new Date(new_excercise.date).toDateString(),
       duration : new_excercise.duration,

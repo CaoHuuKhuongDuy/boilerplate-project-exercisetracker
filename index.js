@@ -57,12 +57,15 @@ function ObjectId(s)
   return mongoose.Types.ObjectId(s);
 }
 
+
 app.post('/api/users/:_id/exercises',function (req,res){
   let new_excercise = {
     description : req.body.description,
     duration : Number(req.body.duration),
-    date : get_date(req.body.date).getTime()
+    date : get_date(req.body.date)
   }
+  new_excercise.date.setMilliseconds(0)
+  new_excercise.date = new_excercise.date.getTime()
   let id = ObjectId(req.params._id);
   user.findById(id,function (err,data){
     if (err) throw err;
@@ -73,7 +76,7 @@ app.post('/api/users/:_id/exercises',function (req,res){
     let result = {
       _id : req.params._id,
       username : data.username,
-      date : new Date(new_excercise.date).toDateString(),
+      date : new_excercise.date.toDateString(),
       duration : new_excercise.duration,
       description : new_excercise.description
     }
@@ -81,15 +84,32 @@ app.post('/api/users/:_id/exercises',function (req,res){
   })
 })
 
+let err_record = []
+
 app.get('/api/users/:_id/logs',function (req,res){
-  let from = query(req.query.from) ? new Date(req.query.from).getTime() : -1;
-  let to = query(req.query.to) ? new Date(req.query.to).getTime() : -1;
+  let from = query(req.query.from) ? new Date(req.query.from) : -1;
+  let to = query(req.query.to) ? new Date(req.query.to) : -1;
   let limit = query(req.query.limit) ? Number(req.query.limit) : -1;
   let id = ObjectId(req.params._id)
+  if (from != -1 || to != -1)
+    {
+      if (from == -1) from = new Date(0);
+      if (to == -1) to = new Date();
+    }
+  if (from != -1) 
+    {
+      from.setMilliseconds(0);
+      from = from.getTime();
+    }
+  if (to != -1) 
+    {
+      to.setMilliseconds(0);
+      to = to.getTime()
+    }
+
+  err_record.push({id,from,to,limit})
   function check (a){
-    if (from != -1 && from > a.date) return false;
-    if (to != -1 && to < a.date) return false;
-    return true;
+    return ((from == -1 || a.date >= from) && (a.date <= to || to == -1));
   }
   user.findById(id,function (err,data){
     if (err) throw err;
@@ -97,22 +117,67 @@ app.get('/api/users/:_id/logs',function (req,res){
       _id : req.params._id,
       username : data.username,
       count : 0,
-      logs : []
+      log : []
     }
     for (let i in data.exercises)
+    {
+      console.log(`${from} - ${to} : ${data.exercises[i].date}`)
       if (check(data.exercises[i])) 
         {
           if (Number(i) + 1 > limit && limit != -1) break;
           result.count ++;
           let tmp = JSON.parse(JSON.stringify(data.exercises[i]));
           tmp.date = get_date(tmp.date).toDateString()
-          delete tmp._id;
-          result.logs.push(tmp)
+          // delete tmp._id;
+          result.log.push(tmp)
         }
+      }
     res.send(result)
   })
 })
 
+
+
+// app.get("/api/users/:_id/logs", (req, res) => {
+//   user.findById(req.params._id).then((result) => {
+//     let resObj = JSON.parse(JSON.stringify(result));
+//     // let tmp = JSON.parse(JSON.stringify(data.exercises[i]));
+//     if (req.query.from || req.query.to) {
+//       let fromDate = new Date(0);
+//       let toDate = new Date();
+
+//       if (req.query.from) {
+//         fromDate = new Date(req.query.from);
+//       }
+      
+//       if (req.query.to) {
+//         toDate = new Date(req.query.to);
+//       }
+
+//       fromDate = fromDate.getTime();
+//       toDate = toDate.getTime();
+
+//       resObj.exercises = resObj.exercises.filter((session) => {
+//         let sessionDate = new Date(session.date).getTime();
+//         return sessionDate >= fromDate && sessionDate <= toDate;
+//       });
+//     }
+//     if (req.query.limit) {
+//       resObj.exercises = resObj.exercises.slice(0, req.query.limit);
+//     }
+//     resObj["count"] = result.exercises.length;
+//     resObj.log = resObj.exercises
+//     resObj.date = new Date(resObj.date).toDateString()
+//     delete resObj.exercises
+//     res.json(resObj);
+//   });
+// });
+
+
+
+app.get('/catch',function (req,res){
+  res.send(err_record)
+})
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
 })

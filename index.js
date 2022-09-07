@@ -76,7 +76,7 @@ app.post('/api/users/:_id/exercises',function (req,res){
     let result = {
       _id : req.params._id,
       username : data.username,
-      date : new_excercise.date.toDateString(),
+      date : new Date(new_excercise.date).toDateString(),
       duration : new_excercise.duration,
       description : new_excercise.description
     }
@@ -137,7 +137,8 @@ app.get('/api/users/:_id/logs',function (req,res){
 })
 
 
-
+// let result_log = []
+// let cnt = 0
 // app.get("/api/users/:_id/logs", (req, res) => {
 //   user.findById(req.params._id).then((result) => {
 //     let resObj = JSON.parse(JSON.stringify(result));
@@ -161,14 +162,22 @@ app.get('/api/users/:_id/logs',function (req,res){
 //         let sessionDate = new Date(session.date).getTime();
 //         return sessionDate >= fromDate && sessionDate <= toDate;
 //       });
+//        err_record.push([req.params._id,new Date(fromDate).toDateString(),new Date(toDate).toDateString(),req.query.limit])
 //     }
+//     else err_record.push([req.params._id,req.query.limit])
 //     if (req.query.limit) {
 //       resObj.exercises = resObj.exercises.slice(0, req.query.limit);
 //     }
+   
 //     resObj["count"] = result.exercises.length;
 //     resObj.log = resObj.exercises
-//     resObj.date = new Date(resObj.date).toDateString()
 //     delete resObj.exercises
+//     for (let i = 0;i < resObj.log.length;i++)
+//       resObj.log[i].date = new Date(resObj.log[i].date).toDateString()  
+//     // console.log(resObj.exercises[0].date);
+//     // console.log(resObj.log[0].date)
+//     // console.log(resObj)
+//     result_log.push(resObj)
 //     res.json(resObj);
 //   });
 // });
@@ -176,7 +185,8 @@ app.get('/api/users/:_id/logs',function (req,res){
 
 
 app.get('/catch',function (req,res){
-  res.send(err_record)
+  let log = [err_record,result_log]
+  res.send(log)
 })
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
